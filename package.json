@@ -1,0 +1,33 @@
+{
+  "name": "now-list",
+  "version": "1.0.0",
+  "description": "Lightweight todo list tracker for throwaway checklists",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dist": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.nowlist.app",
+    "productName": "Now List",
+    "mac": {
+      "target": "dmg"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^41.0.4",
+    "electron-builder": "^26.8.1",
+    "vitest": "^4.1.2"
+  }
+}

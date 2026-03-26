@@ -1,0 +1,21 @@
+{
+  "title": "Sample Todo List",
+  "created": "2026-03-26",
+  "groups": [
+    {
+      "name": "Setup",
+      "items": [
+        { "id": 1, "text": "Install dependencies", "status": "done" },
+        { "id": 2, "text": "Configure environment", "status": "pending" }
+      ]
+    },
+    {
+      "name": "Implementation",
+      "items": [
+        { "id": 3, "text": "Build the thing", "status": "pending" },
+        { "id": 4, "text": "Test the thing", "status": "blocked" },
+        { "id": 5, "text": "Optional cleanup", "status": "skipped" }
+      ]
+    }
+  ]
+}
