@@ -233,3 +233,32 @@ button, .file-item, .status-icon {
 .todo-item[data-status="blocked"] .todo-text {
   color: var(--accent-orange);
 }
+
+.todo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.todo-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.delete-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+  -webkit-app-region: no-drag;
+}
+
+.delete-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}

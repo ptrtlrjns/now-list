@@ -54,6 +54,12 @@ ipcMain.handle('update-item', (_event, { filename, itemId, status }) => {
   return readTodoFile(filePath);
 });
 
+ipcMain.handle('delete-file', (_event, filename) => {
+  const filePath = path.join(TODO_DIR, filename);
+  fs.unlinkSync(filePath);
+  return listFiles(TODO_DIR);
+});
+
 // App lifecycle
 app.whenReady().then(() => {
   ensureTodoDir();

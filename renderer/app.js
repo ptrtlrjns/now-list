@@ -78,7 +78,32 @@ function renderTodo(data) {
   emptyState.style.display = 'none';
   todoContent.style.display = 'block';
 
-  title.textContent = data.title;
+  // Remove existing header if present
+  const existingHeader = todoContent.querySelector('.todo-header');
+  if (existingHeader) existingHeader.remove();
+
+  // Create header with title and delete button
+  const header = document.createElement('div');
+  header.className = 'todo-header';
+
+  const h1 = document.createElement('h1');
+  h1.textContent = data.title;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.textContent = 'Delete List';
+  deleteBtn.addEventListener('click', async () => {
+    const files = await window.api.deleteFile(currentFile);
+    currentFile = null;
+    renderFileList(files);
+  });
+
+  header.appendChild(h1);
+  header.appendChild(deleteBtn);
+  todoContent.prepend(header);
+
+  // Hide original title element
+  title.style.display = 'none';
   container.innerHTML = '';
 
   data.groups.forEach((group, groupIndex) => {

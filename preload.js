@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
   readFile: (filename) => ipcRenderer.invoke('read-file', filename),
   updateItem: (filename, itemId, status) =>
     ipcRenderer.invoke('update-item', { filename, itemId, status }),
+  deleteFile: (filename) => ipcRenderer.invoke('delete-file', filename),
   onFilesChanged: (callback) => {
     ipcRenderer.on('files-changed', (_event, files) => callback(files));
   },
