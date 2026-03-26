@@ -7,6 +7,9 @@ const STATUS_ICONS = {
 };
 
 let currentFile = null;
+let selectedItemId = null;
+let currentData = null;
+const collapsedGroups = new Set();
 
 // --- Sidebar ---
 
@@ -77,6 +80,7 @@ function renderTodo(data) {
 
   emptyState.style.display = 'none';
   todoContent.style.display = 'block';
+  currentData = data;
 
   // Remove existing header if present
   const existingHeader = todoContent.querySelector('.todo-header');
@@ -114,9 +118,15 @@ function renderTodo(data) {
     const total = group.items.length;
     const pct = total > 0 ? (doneCount / total) * 100 : 0;
 
+    const groupKey = `${currentFile}:${groupIndex}`;
+    const isCollapsed = collapsedGroups.has(groupKey);
+
     section.innerHTML = `
       <div class="group-header">
-        <span class="group-name">${group.name}</span>
+        <div class="group-header-left">
+          <span class="collapse-toggle${isCollapsed ? ' collapsed' : ''}">${isCollapsed ? '▸' : '▾'}</span>
+          <span class="group-name">${group.name}</span>
+        </div>
         <span class="group-progress">${doneCount}/${total}</span>
       </div>
       <div class="progress-bar">
@@ -124,7 +134,17 @@ function renderTodo(data) {
       </div>
     `;
 
+    section.querySelector('.group-header').addEventListener('click', () => {
+      if (collapsedGroups.has(groupKey)) {
+        collapsedGroups.delete(groupKey);
+      } else {
+        collapsedGroups.add(groupKey);
+      }
+      window.api.readFile(currentFile).then(renderTodo);
+    });
+
     const itemsDiv = document.createElement('div');
+    itemsDiv.style.display = isCollapsed ? 'none' : 'block';
     group.items.forEach(item => {
       const row = document.createElement('div');
       row.className = 'todo-item';
@@ -134,11 +154,23 @@ function renderTodo(data) {
       btn.className = 'status-icon';
       btn.dataset.status = item.status;
       btn.textContent = STATUS_ICONS[item.status];
-      btn.addEventListener('click', () => cycleStatus(item.id, item.status));
+      btn.addEventListener('click', () => toggleDone(item.id, item.status));
 
       const text = document.createElement('span');
       text.className = 'todo-text';
       text.textContent = item.text;
+
+      // Selected state
+      if (item.id === selectedItemId) {
+        row.classList.add('selected');
+      }
+
+      // Click text to select item and open detail panel
+      text.addEventListener('click', () => {
+        selectedItemId = item.id === selectedItemId ? null : item.id;
+        renderTodo(currentData);
+        renderDetailPanel();
+      });
 
       row.appendChild(btn);
       row.appendChild(text);
@@ -152,15 +184,124 @@ function renderTodo(data) {
 
 // --- Status Toggle ---
 
-async function cycleStatus(itemId, currentStatus) {
-  const idx = STATUS_CYCLE.indexOf(currentStatus);
-  const nextStatus = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
-
+async function toggleDone(itemId, currentStatus) {
+  const nextStatus = currentStatus === 'done' ? 'pending' : 'done';
   const updatedData = await window.api.updateItem(currentFile, itemId, nextStatus);
   renderTodo(updatedData);
-  // Refresh sidebar to update progress counts
+  renderDetailPanel();
   loadFileList();
 }
+
+async function setStatus(itemId, newStatus) {
+  const updatedData = await window.api.updateItem(currentFile, itemId, newStatus);
+  renderTodo(updatedData);
+  renderDetailPanel();
+  loadFileList();
+}
+
+// --- Detail Panel ---
+
+function findItemById(data, id) {
+  for (const group of data.groups) {
+    for (const item of group.items) {
+      if (item.id === id) return item;
+    }
+  }
+  return null;
+}
+
+function renderDetailPanel() {
+  const panel = document.getElementById('detail-panel');
+  const body = document.getElementById('detail-body');
+
+  if (!selectedItemId || !currentData) {
+    panel.classList.remove('open');
+    return;
+  }
+
+  const item = findItemById(currentData, selectedItemId);
+  if (!item) {
+    panel.classList.remove('open');
+    return;
+  }
+
+  panel.classList.add('open');
+  body.innerHTML = '';
+
+  // Status selector
+  const statusRow = document.createElement('div');
+  statusRow.className = 'detail-status-row';
+
+  STATUS_CYCLE.forEach(status => {
+    const btn = document.createElement('button');
+    btn.className = `detail-status-btn status-${status}${item.status === status ? ' active' : ''}`;
+    btn.textContent = status;
+    btn.addEventListener('click', () => setStatus(item.id, status));
+    statusRow.appendChild(btn);
+  });
+
+  body.appendChild(statusRow);
+
+  // Item text
+  const title = document.createElement('h2');
+  title.className = 'detail-item-title';
+  title.textContent = item.text;
+  body.appendChild(title);
+
+  // Notes
+  const notesLabel = document.createElement('label');
+  notesLabel.className = 'detail-label';
+  notesLabel.textContent = 'Notes';
+  body.appendChild(notesLabel);
+
+  if (item.notes) {
+    const notesText = document.createElement('p');
+    notesText.className = 'detail-notes';
+    notesText.textContent = item.notes;
+    body.appendChild(notesText);
+  } else {
+    const noNotes = document.createElement('p');
+    noNotes.className = 'detail-empty';
+    noNotes.textContent = 'No notes';
+    body.appendChild(noNotes);
+  }
+
+  // Snippets (copyable items)
+  if (item.snippets && item.snippets.length > 0) {
+    const snippetsLabel = document.createElement('label');
+    snippetsLabel.className = 'detail-label';
+    snippetsLabel.textContent = 'Copy to Clipboard';
+    body.appendChild(snippetsLabel);
+
+    item.snippets.forEach(snippet => {
+      const row = document.createElement('div');
+      row.className = 'snippet-row';
+
+      const code = document.createElement('code');
+      code.className = 'snippet-text';
+      code.textContent = snippet;
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'snippet-copy-btn';
+      copyBtn.textContent = 'Copy';
+      copyBtn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(snippet);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+      });
+
+      row.appendChild(code);
+      row.appendChild(copyBtn);
+      body.appendChild(row);
+    });
+  }
+}
+
+document.getElementById('detail-close').addEventListener('click', () => {
+  selectedItemId = null;
+  document.getElementById('detail-panel').classList.remove('open');
+  renderTodo(currentData);
+});
 
 // --- File Watching ---
 

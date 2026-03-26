@@ -27,7 +27,7 @@ body {
   -webkit-app-region: drag;
 }
 
-button, .file-item, .status-icon {
+button, .file-item, .status-icon, .main, .file-list {
   -webkit-app-region: no-drag;
 }
 
@@ -133,6 +133,25 @@ button, .file-item, .status-icon {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.group-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collapse-toggle {
+  font-size: 12px;
+  color: var(--text-dimmed);
+  width: 14px;
+  transition: color 0.15s;
+}
+
+.group-header:hover .collapse-toggle {
+  color: var(--text-secondary);
 }
 
 .group-name {
@@ -261,4 +280,183 @@ button, .file-item, .status-icon {
 .delete-btn:hover {
   border-color: #ef4444;
   color: #ef4444;
+}
+
+/* Selected item */
+.todo-item.selected {
+  background: rgba(96, 165, 250, 0.1);
+  border-left: 2px solid var(--accent-blue);
+  padding-left: 8px;
+}
+
+.todo-text {
+  cursor: pointer;
+}
+
+/* Detail Panel */
+.detail-panel {
+  width: 0;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+
+.detail-panel.open {
+  width: 320px;
+}
+
+.detail-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 16px 12px;
+}
+
+.detail-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.detail-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.detail-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.detail-body {
+  padding: 0 16px 16px;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
+}
+
+.detail-status-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.detail-status-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-dimmed);
+}
+
+.detail-status-btn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.detail-status-btn.status-pending.active {
+  color: var(--text-secondary);
+  background: rgba(160, 160, 176, 0.15);
+  border-color: var(--text-secondary);
+}
+
+.detail-status-btn.status-done.active {
+  color: var(--accent-green);
+  background: rgba(74, 222, 128, 0.15);
+  border-color: var(--accent-green);
+}
+
+.detail-status-btn.status-skipped.active {
+  color: var(--accent-gray);
+  background: rgba(107, 114, 128, 0.2);
+  border-color: var(--accent-gray);
+}
+
+.detail-status-btn.status-blocked.active {
+  color: var(--accent-orange);
+  background: rgba(251, 146, 60, 0.15);
+  border-color: var(--accent-orange);
+}
+
+.detail-item-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.detail-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.detail-notes {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.detail-empty {
+  font-size: 13px;
+  color: var(--text-dimmed);
+  font-style: italic;
+}
+
+.snippet-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.snippet-text {
+  flex: 1;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  color: var(--text-primary);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.snippet-copy-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.snippet-copy-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
 }
