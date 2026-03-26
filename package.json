@@ -13,7 +13,8 @@
     "appId": "com.nowlist.app",
     "productName": "Now List",
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "assets/icon.icns"
     },
     "files": [
       "main.js",
